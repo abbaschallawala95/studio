@@ -20,14 +20,14 @@ service cloud.firestore {
     /**
      * @description Controls access to user profile documents.
      * @path /users/{userId}
-     * @allow (get, update) User can read and update their own profile.
-     * @deny (create, delete, list) Users cannot create or delete their own profile directly (handled by auth triggers or backend logic usually) and cannot list all users.
+     * @allow (get, update, create) User can read, update, and create their own profile.
+     * @deny (delete, list) Users cannot delete their own profile directly and cannot list all users.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId} {
       allow get: if isOwner(userId);
       allow update: if isOwner(userId);
-      allow create: if isOwner(userId); // Allow creation for new users
+      allow create: if isOwner(userId);
       deny delete, list;
     }
 
