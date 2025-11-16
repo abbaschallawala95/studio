@@ -4,7 +4,7 @@ import * as React from 'react';
 import { generateChargingInsights, ChargingDataInsightsOutput } from '@/ai/flows/charging-data-insights';
 import type { ChargingSession } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Clock, BatteryCharging, Zap } from 'lucide-react';
+import { BatteryCharging, Zap } from 'lucide-react';
 import { format } from 'date-fns';
 import { Skeleton } from '../ui/skeleton';
 
@@ -39,7 +39,7 @@ export default function ChargingSummary({ sessions }: ChargingSummaryProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Charging Time</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+            <BatteryCharging className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">N/A</div>
@@ -85,7 +85,7 @@ export default function ChargingSummary({ sessions }: ChargingSummaryProps) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Charging Time</CardTitle>
-          <Clock className="h-4 w-4 text-muted-foreground" />
+          <BatteryCharging className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{insights.totalChargingTime}</div>
