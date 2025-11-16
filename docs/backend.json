@@ -1,0 +1,82 @@
+{
+  "entities": {
+    "ChargingSession": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ChargingSession",
+      "type": "object",
+      "description": "Represents a single charging session for the electric scooter.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the charging session."
+        },
+        "date": {
+          "type": "string",
+          "description": "The date on which the charging session took place.",
+          "format": "date"
+        },
+        "startTime": {
+          "type": "string",
+          "description": "The time the charging session started.",
+          "format": "date-time"
+        },
+        "endTime": {
+          "type": "string",
+          "description": "The time the charging session ended.",
+          "format": "date-time"
+        },
+        "startPercentage": {
+          "type": "number",
+          "description": "The battery percentage at the start of the charging session."
+        },
+        "endPercentage": {
+          "type": "number",
+          "description": "The battery percentage at the end of the charging session."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Any notes related to the charging session."
+        }
+      },
+      "required": [
+        "id",
+        "date",
+        "startTime",
+        "endTime",
+        "startPercentage",
+        "endPercentage"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}/charging_sessions/{sessionId}",
+        "definition": {
+          "entityName": "ChargingSession",
+          "schema": {
+            "$ref": "#/backend/entities/ChargingSession"
+          },
+          "description": "Stores charging session data for each user.  Path-based ownership ensures only the user can access their charging sessions.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The ID of the user."
+            },
+            {
+              "name": "sessionId",
+              "description": "The ID of the charging session."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to manage charging sessions for users of the eScotty Tracker application. It prioritizes authorization independence and supports necessary CRUD operations. All charging session data is stored under the respective user's document, ensuring that only the user can access their data. This design avoids complex hierarchical permissions or the need for `get()` calls in security rules.\n\n- Authorization Independence: Achieved by storing each charging session directly under the user's document, eliminating the need to check parent document permissions.\n\n- QAPs Support: Segregation is achieved by nesting all charging sessions under the `/users/{userId}/charging_sessions/{sessionId}` path. This ensures that list operations can be securely performed, as rules can simply check if the requesting user's ID matches the `userId` parameter in the path."
+  }
+}
