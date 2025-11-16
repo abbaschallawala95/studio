@@ -1,10 +1,8 @@
 'use client';
+
 import React, { useEffect, useMemo } from 'react';
 import Header from '@/components/layout/header';
-import ChargingSummary from '@/components/charging-sessions/charging-summary';
-import ChargingChart from '@/components/charging-sessions/charging-chart';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart2, CircleDashed } from 'lucide-react';
+import SessionList from '@/components/charging-sessions/session-list';
 import {
   useAuth,
   useCollection,
@@ -18,8 +16,10 @@ import type { ChargingSession } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/sidebar';
+import { CircleDashed } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function Home() {
+export default function HistoryPage() {
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
@@ -64,14 +64,18 @@ export default function Home() {
           <SidebarInset>
             <Header />
             <main className="flex flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap-8">
-                <Skeleton className="h-[118px] w-full" />
-                <Skeleton className="h-[118px] w-full" />
-                <Skeleton className="h-[118px] w-full" />
-              </div>
-              <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-5 lg:gap-8">
-                <Skeleton className="lg:col-span-5 h-[414px]" />
-              </div>
+              <Card>
+                <CardHeader>
+                    <Skeleton className="h-6 w-48" />
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                        <Skeleton className="h-24 w-full" />
+                        <Skeleton className="h-24 w-full" />
+                        <Skeleton className="h-24 w-full" />
+                    </div>
+                </CardContent>
+              </Card>
             </main>
           </SidebarInset>
         </div>
@@ -92,19 +96,8 @@ export default function Home() {
       <AppSidebar />
       <SidebarInset>
         <Header />
-        <main className="flex flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
-          <ChargingSummary sessions={sortedSessions} />
-          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-5 lg:gap-8">
-            <Card className="lg:col-span-5">
-              <CardHeader className="flex flex-row items-center gap-2">
-                <BarChart2 className="h-5 w-5 text-muted-foreground" />
-                <CardTitle>Charging Trend</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ChargingChart sessions={sortedSessions} />
-              </CardContent>
-            </Card>
-          </div>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+            <SessionList sessions={sortedSessions} />
         </main>
       </SidebarInset>
     </div>

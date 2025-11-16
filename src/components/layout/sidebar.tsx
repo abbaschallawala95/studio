@@ -9,7 +9,7 @@ import {
   SidebarFooter,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { Power, LayoutDashboard, User, Plus } from 'lucide-react';
+import { Power, LayoutDashboard, User, Plus, History } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { AddSessionDialog } from '../charging-sessions/add-session-dialog';
@@ -40,6 +40,17 @@ export function AppSidebar() {
               >
                 <LayoutDashboard />
                 <span>Dashboard</span>
+              </SidebarMenuButton>
+            </Link>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <Link href="/history">
+              <SidebarMenuButton
+                isActive={pathname === '/history'}
+                tooltip="Session History"
+              >
+                <History />
+                <span>Session History</span>
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>

@@ -68,7 +68,7 @@ export default function SessionList({ sessions: initialSessions }: SessionListPr
         </Select>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[400px]">
+        <ScrollArea className="h-[calc(100vh-220px)]">
           {sessions.length > 0 ? (
             <div className="space-y-4 pr-4">
               {sessions.map((session) => (
@@ -76,7 +76,7 @@ export default function SessionList({ sessions: initialSessions }: SessionListPr
               ))}
             </div>
           ) : (
-            <div className="flex h-[380px] items-center justify-center">
+            <div className="flex h-[400px] items-center justify-center">
               <p className="text-muted-foreground">No charging sessions logged yet.</p>
             </div>
           )}
