@@ -13,7 +13,7 @@ import type { ChargingSession } from '@/lib/types';
 import { format, intervalToDuration } from 'date-fns';
 import { Timestamp } from 'firebase/firestore';
 import { SingleSessionChart } from './single-session-chart';
-import { Timer, Zap } from 'lucide-react';
+import { Timer, Zap, BatteryCharging } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
 
 interface SessionDetailsDialogProps {
@@ -61,58 +61,62 @@ export function SessionDetailsDialog({ session, children }: SessionDetailsDialog
     }
   };
 
+  const chargeGained = session.endPercentage - session.startPercentage;
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="p-0 w-[95vw] max-w-md rounded-lg max-h-[90vh] flex flex-col">
         <DialogHeader className="p-6 pb-4">
-          <DialogTitle>Charging History</DialogTitle>
+          <DialogTitle>Charging Details</DialogTitle>
           <DialogDescription>
-            {format(sessionDate, 'd MMMM, ')} {formatTime12h(session.startTime)} - {formatTime12h(session.endTime)}
+            {format(sessionDate, 'MMMM d, yyyy')}
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="px-6 pb-6">
-            <div className="space-y-4">
-                <div className="grid gap-4 rounded-lg border bg-card text-card-foreground">
-                    <div className="p-6">
-                        <div className="flex flex-col space-y-4">
-                            <div className="flex justify-between items-center">
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                    <Timer className="h-5 w-5" />
-                                    <span className="font-medium">Charging Time</span>
-                                </div>
-                                <span className="font-bold">{getDuration()}</span>
+        <ScrollArea className="flex-1 px-6 pb-6">
+            <div className="grid gap-6">
+                <div className="grid gap-4 rounded-lg border">
+                    <div className="p-4 grid gap-4">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3 text-muted-foreground">
+                                <Timer className="h-5 w-5" />
+                                <span className="font-medium">Charging Time</span>
                             </div>
-                            {session.energyConsumed && (
-                                <div className="flex justify-between items-center">
-                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                        <Zap className="h-5 w-5" />
-                                        <span className="font-medium">Energy Consumed</span>
-                                    </div>
-                                    <span className="font-bold">{session.energyConsumed} kWh</span>
-                                </div>
-                            )}
-                            <div className="flex justify-between items-center">
-                                <span className="font-medium text-muted-foreground">Start SOC</span>
-                                <span className="font-bold">{session.startPercentage}%</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="font-medium text-muted-foreground">End SOC</span>
-                                <span className="font-bold">{session.endPercentage}%</span>
-                            </div>
+                            <span className="font-bold">{getDuration()}</span>
                         </div>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3 text-muted-foreground">
+                                <BatteryCharging className="h-5 w-5" />
+                                <span className="font-medium">Charge Added</span>
+                            </div>
+                            <span className="font-bold text-green-600">+{chargeGained}%</span>
+                        </div>
+                        {session.energyConsumed && session.energyConsumed > 0 && (
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3 text-muted-foreground">
+                                    <Zap className="h-5 w-5" />
+                                    <span className="font-medium">Energy Used</span>
+                                </div>
+                                <span className="font-bold">{session.energyConsumed} kWh</span>
+                            </div>
+                        )}
+                         <div className="flex items-center justify-between">
+                            <span className="font-medium text-muted-foreground">Start / End SOC</span>
+                            <span className="font-bold">{session.startPercentage}% &rarr; {session.endPercentage}%</span>
+                        </div>
+
                     </div>
-                    <div className="h-[250px] w-full bg-card rounded-b-lg -mt-6">
+                    <div className="h-[200px] w-full bg-card rounded-b-lg">
                         <SingleSessionChart session={session} />
                     </div>
                 </div>
             
             {session.notes && (
                 <div className="space-y-2">
-                 <p className="text-sm font-medium text-muted-foreground">Notes</p>
-                <p className="text-sm text-muted-foreground rounded-md border p-3 bg-muted/50 break-words">
-                    {session.notes}
-                </p>
+                    <p className="text-sm font-medium text-card-foreground">Notes</p>
+                    <p className="text-sm text-muted-foreground rounded-md border p-3 bg-muted/50 break-words">
+                        {session.notes}
+                    </p>
                 </div>
             )}
             </div>
