@@ -13,7 +13,7 @@ import type { ChargingSession } from '@/lib/types';
 import { format, intervalToDuration } from 'date-fns';
 import { Timestamp } from 'firebase/firestore';
 import { SingleSessionChart } from './single-session-chart';
-import { BatteryCharging, Clock, Zap, Timer } from 'lucide-react';
+import { Timer, Zap } from 'lucide-react';
 
 interface SessionDetailsDialogProps {
   session: ChargingSession;
@@ -32,24 +32,32 @@ export function SessionDetailsDialog({ session, children }: SessionDetailsDialog
   const sessionDate = getSessionDate(session.date);
 
   const formatTime12h = (time: string) => {
-    const [hours, minutes] = time.split(':');
-    const date = new Date();
-    date.setHours(parseInt(hours));
-    date.setMinutes(parseInt(minutes));
-    return format(date, 'hh:mm a');
+    try {
+        const [hours, minutes] = time.split(':');
+        const date = new Date();
+        date.setHours(parseInt(hours));
+        date.setMinutes(parseInt(minutes));
+        return format(date, 'hh:mm a');
+    } catch {
+        return "Invalid time"
+    }
   };
   
   const getDuration = () => {
-    const startDate = new Date(`${format(sessionDate, 'yyyy-MM-dd')}T${session.startTime}`);
-    let endDate = new Date(`${format(sessionDate, 'yyyy-MM-dd')}T${session.endTime}`);
+    try {
+        const startDate = new Date(`${format(sessionDate, 'yyyy-MM-dd')}T${session.startTime}`);
+        let endDate = new Date(`${format(sessionDate, 'yyyy-MM-dd')}T${session.endTime}`);
 
-    if (endDate < startDate) {
-      endDate.setDate(endDate.getDate() + 1);
+        if (endDate < startDate) {
+        endDate.setDate(endDate.getDate() + 1);
+        }
+        
+        const duration = intervalToDuration({ start: startDate, end: endDate });
+        
+        return `${duration.hours || 0} hr ${duration.minutes || 0} min`;
+    } catch {
+        return "N/A"
     }
-    
-    const duration = intervalToDuration({ start: startDate, end: endDate });
-    
-    return `${duration.hours || 0} hr ${duration.minutes || 0} min`;
   };
 
   return (

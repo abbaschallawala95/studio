@@ -3,7 +3,7 @@
 import * as React from 'react';
 import type { ChargingSession } from '@/lib/types';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
-import { ChartContainer, ChartTooltipContent, ChartConfig } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from '@/components/ui/chart';
 import { format } from 'date-fns';
 
 interface SingleSessionChartProps {
@@ -24,11 +24,15 @@ export function SingleSessionChart({ session }: SingleSessionChartProps) {
   ];
   
   const formatTime12h = (time: string) => {
-    const [hours, minutes] = time.split(':');
-    const date = new Date();
-    date.setHours(parseInt(hours));
-    date.setMinutes(parseInt(minutes));
-    return format(date, 'hh:mm a');
+    try {
+        const [hours, minutes] = time.split(':');
+        const date = new Date();
+        date.setHours(parseInt(hours));
+        date.setMinutes(parseInt(minutes));
+        return format(date, 'hh:mm a');
+    } catch {
+        return ""
+    }
   };
 
   return (
@@ -60,7 +64,7 @@ export function SingleSessionChart({ session }: SingleSessionChartProps) {
         />
         <ChartTooltip
           cursor={false}
-          content={<ChartTooltipContent indicator="line" />}
+          content={<ChartTooltipContent indicator="line" labelKey="label" />}
         />
         <defs>
           <linearGradient id="fillPercentage" x1="0" y1="0" x2="0" y2="1">

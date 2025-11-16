@@ -65,17 +65,21 @@ export function SessionCard({ session }: SessionCardProps) {
   }
   
   const formatTime12h = (time: string) => {
-    const [hours, minutes] = time.split(':');
-    const date = new Date();
-    date.setHours(parseInt(hours));
-    date.setMinutes(parseInt(minutes));
-    return format(date, 'hh:mm a');
+    try {
+      const [hours, minutes] = time.split(':');
+      const date = new Date();
+      date.setHours(parseInt(hours));
+      date.setMinutes(parseInt(minutes));
+      return format(date, 'hh:mm a');
+    } catch {
+      return 'Invalid time'
+    }
   };
 
   return (
     <SessionDetailsDialog session={session}>
       <Card className="transition-all hover:shadow-md cursor-pointer hover:border-primary/50">
-        <CardHeader className="flex flex-row items-start justify-between pb-2"  onClick={(e) => e.stopPropagation()}>
+        <CardHeader className="flex flex-row items-start justify-between pb-2" onClick={(e) => e.stopPropagation()}>
           <div>
             <CardTitle className="text-lg font-medium">{format(sessionDate, 'MMMM d, yyyy')}</CardTitle>
             <CardDescription>
@@ -125,7 +129,7 @@ export function SessionCard({ session }: SessionCardProps) {
                 <div className="font-medium text-right">{getDuration()}</div>
             </div>
             {notes && (
-              <p className="text-sm text-muted-foreground border-t pt-3">{notes}</p>
+              <p className="text-sm text-muted-foreground border-t pt-3 truncate">{notes}</p>
             )}
           </div>
         </CardContent>
