@@ -13,7 +13,7 @@ import type { ChargingSession } from '@/lib/types';
 import { format, intervalToDuration } from 'date-fns';
 import { Timestamp } from 'firebase/firestore';
 import { SingleSessionChart } from './single-session-chart';
-import { BatteryCharging, Calendar, Clock, StickyNote, Timer, Zap } from 'lucide-react';
+import { BatteryCharging, Clock, Zap, Timer } from 'lucide-react';
 
 interface SessionDetailsDialogProps {
   session: ChargingSession;
@@ -49,21 +49,21 @@ export function SessionDetailsDialog({ session, children }: SessionDetailsDialog
     
     const duration = intervalToDuration({ start: startDate, end: endDate });
     
-    return `${duration.hours || 0}h ${duration.minutes || 0}m`;
+    return `${duration.hours || 0} hr ${duration.minutes || 0} min`;
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-lg p-0">
+        <DialogHeader className="p-6 pb-0">
           <DialogTitle>Charging History</DialogTitle>
           <DialogDescription>
             {format(sessionDate, 'd MMMM, ')} {formatTime12h(session.startTime)} - {formatTime12h(session.endTime)}
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 pt-4">
-            <div className="grid gap-4 rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div className="space-y-4 px-6 pb-6">
+            <div className="grid gap-4 rounded-lg border bg-card text-card-foreground">
                 <div className="p-6">
                     <div className="flex flex-col space-y-4">
                         <div className="flex justify-between items-center">
@@ -83,32 +83,22 @@ export function SessionDetailsDialog({ session, children }: SessionDetailsDialog
                             </div>
                         )}
                         <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                                <BatteryCharging className="h-5 w-5" />
-                                <span className="font-medium">Start SOC</span>
-                            </div>
+                            <span className="font-medium text-muted-foreground">Start SOC</span>
                             <span className="font-bold">{session.startPercentage}%</span>
                         </div>
                         <div className="flex justify-between items-center">
-                             <div className="flex items-center gap-2 text-muted-foreground">
-                                <BatteryCharging className="h-5 w-5" />
-                                <span className="font-medium">End SOC</span>
-                            </div>
+                             <span className="font-medium text-muted-foreground">End SOC</span>
                             <span className="font-bold">{session.endPercentage}%</span>
                         </div>
                     </div>
                 </div>
-                 <div className="h-[250px] w-full border-t bg-card rounded-b-lg">
+                 <div className="h-[250px] w-full bg-card rounded-b-lg -mt-6">
                     <SingleSessionChart session={session} />
                 </div>
             </div>
           
           {session.notes && (
             <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                    <StickyNote className="h-4 w-4 text-muted-foreground" />
-                    <h4 className="font-medium text-sm">Notes</h4>
-                </div>
               <p className="text-sm text-muted-foreground rounded-md border p-3 bg-muted/50">
                 {session.notes}
               </p>
