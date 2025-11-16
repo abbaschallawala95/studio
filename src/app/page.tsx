@@ -17,6 +17,8 @@ import { collection, query, orderBy, Timestamp } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import type { ChargingSession } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Sidebar, SidebarContent, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarHeader, SidebarTrigger } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/layout/sidebar';
 
 export default function Home() {
   const auth = useAuth();
@@ -59,18 +61,21 @@ export default function Home() {
   if (isUserLoading || sessionsLoading) {
       return (
         <div className="flex min-h-screen w-full flex-col bg-background">
-          <Header />
-          <main className="flex flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap-8">
-              <Skeleton className="h-[118px] w-full" />
-              <Skeleton className="h-[118px] w-full" />
-              <Skeleton className="h-[118px] w-full" />
-            </div>
-            <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-5 lg:gap-8">
-              <Skeleton className="lg:col-span-3 h-[414px]" />
-              <Skeleton className="lg:col-span-2 h-[482px]" />
-            </div>
-          </main>
+          <AppSidebar />
+          <SidebarInset>
+            <Header />
+            <main className="flex flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap-8">
+                <Skeleton className="h-[118px] w-full" />
+                <Skeleton className="h-[118px] w-full" />
+                <Skeleton className="h-[118px] w-full" />
+              </div>
+              <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-5 lg:gap-8">
+                <Skeleton className="lg:col-span-3 h-[414px]" />
+                <Skeleton className="lg:col-span-2 h-[482px]" />
+              </div>
+            </main>
+          </SidebarInset>
         </div>
       );
   }
@@ -86,24 +91,27 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
-      <Header />
-      <main className="flex flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
-        <ChargingSummary sessions={sortedSessions} />
-        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-5 lg:gap-8">
-          <Card className="lg:col-span-3">
-            <CardHeader className="flex flex-row items-center gap-2">
-              <BarChart2 className="h-5 w-5 text-muted-foreground" />
-              <CardTitle>Charging Trend</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ChargingChart sessions={sortedSessions} />
-            </CardContent>
-          </Card>
-          <div className="lg:col-span-2">
-            <SessionList sessions={sortedSessions} />
+      <AppSidebar />
+      <SidebarInset>
+        <Header />
+        <main className="flex flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
+          <ChargingSummary sessions={sortedSessions} />
+          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-5 lg:gap-8">
+            <Card className="lg:col-span-3">
+              <CardHeader className="flex flex-row items-center gap-2">
+                <BarChart2 className="h-5 w-5 text-muted-foreground" />
+                <CardTitle>Charging Trend</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ChargingChart sessions={sortedSessions} />
+              </CardContent>
+            </Card>
+            <div className="lg:col-span-2">
+              <SessionList sessions={sortedSessions} />
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </SidebarInset>
     </div>
   );
 }
