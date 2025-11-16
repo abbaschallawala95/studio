@@ -13,8 +13,7 @@ import type { ChargingSession } from '@/lib/types';
 import { format, intervalToDuration } from 'date-fns';
 import { Timestamp } from 'firebase/firestore';
 import { SingleSessionChart } from './single-session-chart';
-import { BatteryCharging, Calendar, Clock, StickyNote, Timer, Percent } from 'lucide-react';
-import { Badge } from '../ui/badge';
+import { BatteryCharging, Calendar, Clock, StickyNote, Timer, Zap } from 'lucide-react';
 
 interface SessionDetailsDialogProps {
   session: ChargingSession;
@@ -53,51 +52,57 @@ export function SessionDetailsDialog({ session, children }: SessionDetailsDialog
     return `${duration.hours || 0}h ${duration.minutes || 0}m`;
   };
 
-  const chargeGained = session.endPercentage - session.startPercentage;
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Session Details</DialogTitle>
+          <DialogTitle>Charging History</DialogTitle>
           <DialogDescription>
-            Detailed view of your charging session on {format(sessionDate, 'MMMM d, yyyy')}.
+            {format(sessionDate, 'd MMMM, ')} {formatTime12h(session.startTime)} - {formatTime12h(session.endTime)}
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-6">
-          <div className="h-[250px] w-full">
-            <SingleSessionChart session={session} />
-          </div>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Date:</span>
-              <span>{format(sessionDate, 'PPP')}</span>
+        <div className="space-y-4 pt-4">
+            <div className="grid gap-4 rounded-lg border bg-card text-card-foreground shadow-sm">
+                <div className="p-6">
+                    <div className="flex flex-col space-y-4">
+                        <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                                <Timer className="h-5 w-5" />
+                                <span className="font-medium">Charging Time</span>
+                            </div>
+                            <span className="font-bold">{getDuration()}</span>
+                        </div>
+                        {session.energyConsumed && (
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                    <Zap className="h-5 w-5" />
+                                    <span className="font-medium">Energy Consumed</span>
+                                </div>
+                                <span className="font-bold">{session.energyConsumed} kWh</span>
+                            </div>
+                        )}
+                        <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                                <BatteryCharging className="h-5 w-5" />
+                                <span className="font-medium">Start SOC</span>
+                            </div>
+                            <span className="font-bold">{session.startPercentage}%</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                             <div className="flex items-center gap-2 text-muted-foreground">
+                                <BatteryCharging className="h-5 w-5" />
+                                <span className="font-medium">End SOC</span>
+                            </div>
+                            <span className="font-bold">{session.endPercentage}%</span>
+                        </div>
+                    </div>
+                </div>
+                 <div className="h-[250px] w-full border-t bg-card rounded-b-lg">
+                    <SingleSessionChart session={session} />
+                </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Time:</span>
-              <span>
-                {formatTime12h(session.startTime)} &rarr; {formatTime12h(session.endTime)}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Timer className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Duration:</span>
-              <span>{getDuration()}</span>
-            </div>
-             <div className="flex items-center gap-2">
-              <Percent className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Charge Level:</span>
-              <span>{session.startPercentage}% &rarr; {session.endPercentage}%</span>
-            </div>
-             <div className="flex items-center gap-2">
-              <BatteryCharging className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Charge Gained:</span>
-              <Badge variant="secondary">+{chargeGained}%</Badge>
-            </div>
-          </div>
+          
           {session.notes && (
             <div className="space-y-2">
                 <div className="flex items-center gap-2">

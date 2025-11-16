@@ -7,5 +7,6 @@ export interface ChargingSession {
   endTime: string;
   startPercentage: number;
   endPercentage:number;
+  energyConsumed?: number;
   notes?: string;
 }

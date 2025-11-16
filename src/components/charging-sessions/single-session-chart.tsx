@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import type { ChargingSession } from '@/lib/types';
-import { Line, LineChart, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { ChartContainer, ChartTooltipContent, ChartConfig } from '@/components/ui/chart';
 import { format } from 'date-fns';
 
@@ -12,7 +12,7 @@ interface SingleSessionChartProps {
 
 const chartConfig = {
   percentage: {
-    label: 'Charge %',
+    label: 'SOC %',
     color: 'hsl(var(--chart-1))',
   },
 } satisfies ChartConfig;
@@ -33,7 +33,7 @@ export function SingleSessionChart({ session }: SingleSessionChartProps) {
 
   return (
     <ChartContainer config={chartConfig} className="h-full w-full">
-      <LineChart
+      <AreaChart
         accessibilityLayer
         data={chartData}
         margin={{
@@ -56,15 +56,30 @@ export function SingleSessionChart({ session }: SingleSessionChartProps) {
           axisLine={false}
           tickMargin={8}
           domain={[0, 100]}
-          tickFormatter={(value) => `${value}%`}
+          tickFormatter={(value) => `${value}`}
         />
         <ChartTooltip
           cursor={false}
           content={<ChartTooltipContent indicator="line" />}
         />
-        <Line
+        <defs>
+          <linearGradient id="fillPercentage" x1="0" y1="0" x2="0" y2="1">
+            <stop
+              offset="5%"
+              stopColor="var(--color-percentage)"
+              stopOpacity={0.8}
+            />
+            <stop
+              offset="95%"
+              stopColor="var(--color-percentage)"
+              stopOpacity={0.1}
+            />
+          </linearGradient>
+        </defs>
+        <Area
           dataKey="percentage"
           type="monotone"
+          fill="url(#fillPercentage)"
           stroke="var(--color-percentage)"
           strokeWidth={2}
           dot={{
@@ -72,7 +87,7 @@ export function SingleSessionChart({ session }: SingleSessionChartProps) {
             r: 4,
           }}
         />
-      </LineChart>
+      </AreaChart>
     </ChartContainer>
   );
 }

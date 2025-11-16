@@ -33,6 +33,10 @@
           "type": "number",
           "description": "The battery percentage at the end of the charging session."
         },
+        "energyConsumed": {
+          "type": "number",
+          "description": "The total energy consumed during the charging session in kWh."
+        },
         "notes": {
           "type": "string",
           "description": "Any notes related to the charging session."
