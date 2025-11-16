@@ -8,13 +8,14 @@ import { BarChart2, CircleDashed } from 'lucide-react';
 import {
   useAuth,
   useCollection,
+  useDoc,
   useMemoFirebase,
   useUser,
 } from '@/firebase';
 import { initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
-import { collection, query, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, query, orderBy, Timestamp, doc } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
-import type { ChargingSession } from '@/lib/types';
+import type { ChargingSession, UserProfile } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/sidebar';
@@ -29,6 +30,13 @@ export default function Home() {
       initiateAnonymousSignIn(auth);
     }
   }, [isUserLoading, user, auth]);
+
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [user, firestore]);
+
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
 
   const sessionsCollectionRef = useMemoFirebase(() => {
     if (!user || !firestore) return null;
@@ -57,13 +65,13 @@ export default function Home() {
       })).sort((a, b) => b.date.getTime() - a.date.getTime());
   }, [sessions]);
     
-  if (isUserLoading || sessionsLoading) {
+  if (isUserLoading || sessionsLoading || isProfileLoading) {
       return (
         <div className="flex min-h-screen w-full flex-col bg-background">
           <AppSidebar />
           <SidebarInset>
             <Header />
-            <main className="flex flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
+            <main className="flex flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8 pt-0">
               <Skeleton className="h-8 w-48 mb-4" />
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap-8">
                 <Skeleton className="h-[118px] w-full" />
@@ -94,7 +102,7 @@ export default function Home() {
       <SidebarInset>
         <Header />
         <main className="flex flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8 pt-0">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <h1 className="text-2xl font-bold">{userProfile?.trackerName || 'Dashboard'}</h1>
           <ChargingSummary sessions={sortedSessions} />
           <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-5 lg:gap-8">
             <Card className="lg:col-span-5">

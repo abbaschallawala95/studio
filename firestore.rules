@@ -26,7 +26,6 @@ service cloud.firestore {
      */
     match /users/{userId} {
       allow get, update, create: if isOwner(userId);
-      deny delete, list;
     }
 
     /**
@@ -43,15 +42,7 @@ service cloud.firestore {
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/charging_sessions/{sessionId} {
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-      }
-
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow read, write: if isOwner(userId);
     }
   }
 }
