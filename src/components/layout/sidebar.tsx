@@ -13,9 +13,21 @@ import { Power, LayoutDashboard, User, Plus, History } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { AddSessionDialog } from '../charging-sessions/add-session-dialog';
+import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import type { UserProfile } from '@/lib/types';
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [user, firestore]);
+
+  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
 
   return (
     <Sidebar>
@@ -25,7 +37,7 @@ export function AppSidebar() {
             <div className="flex items-center gap-2">
               <Power className="h-6 w-6 text-primary" />
               <h1 className="text-xl font-semibold tracking-tight">
-                eScotty
+                {userProfile?.trackerName || 'eScotty'}
               </h1>
             </div>
             <SidebarTrigger className="hidden md:flex" />

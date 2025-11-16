@@ -1,5 +1,21 @@
 {
   "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "type": "object",
+      "description": "Stores user-specific profile information, like tracker name and image.",
+      "properties": {
+        "trackerName": {
+          "type": "string",
+          "description": "The custom name for the user's e-scooter tracker."
+        },
+        "trackerImage": {
+          "type": "string",
+          "description": "URL or data URI for the user's tracker image."
+        }
+      },
+      "required": ["trackerName"]
+    },
     "ChargingSession": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "ChargingSession",
@@ -61,6 +77,22 @@
   "firestore": {
     "structure": [
       {
+        "path": "/users/{userId}",
+        "definition": {
+            "entityName": "UserProfile",
+            "schema": {
+                "$ref": "#/backend/entities/UserProfile"
+            },
+            "description": "Stores user profile data. Path-based ownership ensures only the user can access their profile.",
+             "params": [
+                {
+                    "name": "userId",
+                    "description": "The ID of the user."
+                }
+            ]
+        }
+      },
+      {
         "path": "/users/{userId}/charging_sessions/{sessionId}",
         "definition": {
           "entityName": "ChargingSession",
@@ -81,6 +113,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to manage charging sessions for users of the eScotty Tracker application. It prioritizes authorization independence and supports necessary CRUD operations. All charging session data is stored under the respective user's document, ensuring that only the user can access their data. This design avoids complex hierarchical permissions or the need for `get()` calls in security rules.\n\n- Authorization Independence: Achieved by storing each charging session directly under the user's document, eliminating the need to check parent document permissions.\n\n- QAPs Support: Segregation is achieved by nesting all charging sessions under the `/users/{userId}/charging_sessions/{sessionId}` path. This ensures that list operations can be securely performed, as rules can simply check if the requesting user's ID matches the `userId` parameter in the path."
+    "reasoning": "The Firestore structure is designed to manage charging sessions and user profiles for the eScotty Tracker application. It prioritizes authorization independence and supports necessary CRUD operations. All charging session data is stored under the respective user's document, ensuring that only the user can access their data. User profiles are also stored per-user. This design avoids complex hierarchical permissions or the need for `get()` calls in security rules.\n\n- Authorization Independence: Achieved by storing each charging session directly under the user's document, eliminating the need to check parent document permissions.\n\n- QAPs Support: Segregation is achieved by nesting all charging sessions under the `/users/{userId}/charging_sessions/{sessionId}` path. This ensures that list operations can be securely performed, as rules can simply check if the requesting user's ID matches the `userId` parameter in the path."
   }
 }

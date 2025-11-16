@@ -10,3 +10,8 @@ export interface ChargingSession {
   energyConsumed?: number;
   notes?: string;
 }
+
+export interface UserProfile {
+  trackerName: string;
+  trackerImage: string | null;
+}
