@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon, Loader2 } from 'lucide-react';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp, doc } from 'firebase/firestore';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -31,9 +31,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
-import { updateChargingSession } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, updateDocumentNonBlocking } from '@/firebase';
 import type { ChargingSession } from '@/lib/types';
 import { Textarea } from '../ui/textarea';
 
@@ -66,13 +65,18 @@ export function EditSessionDialog({ session, children }: { session: ChargingSess
   const [isPending, startTransition] = React.useTransition();
   const { toast } = useToast();
   const { user } = useUser();
+  const firestore = useFirestore();
 
-  const sessionDate = session.date instanceof Timestamp ? session.date.toDate() : new Date(session.date);
+  const getSessionDate = (sessionDate: ChargingSession['date']) => {
+    if (sessionDate instanceof Timestamp) return sessionDate.toDate();
+    if (typeof sessionDate === 'string') return new Date(sessionDate);
+    return sessionDate as Date;
+  }
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      date: sessionDate,
+      date: getSessionDate(session.date),
       startTime: session.startTime,
       endTime: session.endTime,
       startPercentage: session.startPercentage,
@@ -82,43 +86,31 @@ export function EditSessionDialog({ session, children }: { session: ChargingSess
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    if (!user) {
+    if (!user || !firestore) {
       toast({ title: 'Error', description: 'You must be logged in to edit a session.', variant: 'destructive' });
       return;
     }
-    const formData = new FormData();
-    formData.append('date', values.date.toISOString());
-    formData.append('startTime', values.startTime);
-    formData.append('endTime', values.endTime);
-    formData.append('startPercentage', values.startPercentage.toString());
-    formData.append('endPercentage', values.endPercentage.toString());
-    if (values.notes) {
-      formData.append('notes', values.notes);
-    }
 
-    startTransition(async () => {
-      const result = await updateChargingSession(user.uid, session.id, formData);
-      if (result?.message.includes('Error')) {
-        toast({
-          title: 'Error',
-          description: result.message,
-          variant: 'destructive',
-        });
-      } else {
+    startTransition(() => {
+        const sessionDocRef = doc(firestore, 'users', user.uid, 'charging_sessions', session.id);
+        const sessionData = {
+          ...values,
+        };
+
+        updateDocumentNonBlocking(sessionDocRef, sessionData);
+
         toast({
           title: 'Success',
-          description: result.message,
+          description: 'Charging session updated.',
         });
         setOpen(false);
-      }
     });
   };
 
   React.useEffect(() => {
     if (open) {
-        const sessionDate = session.date instanceof Timestamp ? session.date.toDate() : new Date(session.date);
         form.reset({
-            date: sessionDate,
+            date: getSessionDate(session.date),
             startTime: session.startTime,
             endTime: session.endTime,
             startPercentage: session.startPercentage,

@@ -3,9 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Trash2, Timer, Percent, Edit } from 'lucide-react';
 import { format, intervalToDuration } from 'date-fns';
-import { deleteChargingSession } from '@/lib/actions';
 import { Badge } from '../ui/badge';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, deleteDocumentNonBlocking } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -19,7 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { EditSessionDialog } from './edit-session-dialog';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp, doc } from 'firebase/firestore';
 
 
 interface SessionCardProps {
@@ -29,9 +28,15 @@ interface SessionCardProps {
 export function SessionCard({ session }: SessionCardProps) {
   const { id, date, startTime, endTime, startPercentage, endPercentage, notes } = session;
   const { user } = useUser();
+  const firestore = useFirestore();
   const { toast } = useToast();
 
-  const sessionDate = date instanceof Timestamp ? date.toDate() : new Date(date);
+  const getSessionDate = (sessionDate: ChargingSession['date']) => {
+    if (sessionDate instanceof Timestamp) return sessionDate.toDate();
+    if (typeof sessionDate === 'string') return new Date(sessionDate);
+    return sessionDate as Date;
+  }
+  const sessionDate = getSessionDate(date);
 
   const getDuration = () => {
     const startDate = new Date(`${format(sessionDate, 'yyyy-MM-dd')}T${startTime}`);
@@ -49,11 +54,12 @@ export function SessionCard({ session }: SessionCardProps) {
   const chargeGained = endPercentage - startPercentage;
   
   const handleDelete = async () => {
-    if (!user) {
+    if (!user || !firestore) {
       toast({ title: 'Error', description: 'You must be logged in to delete a session.', variant: 'destructive' });
       return;
     }
-    await deleteChargingSession(user.uid, id);
+    const docRef = doc(firestore, 'users', user.uid, 'charging_sessions', id);
+    deleteDocumentNonBlocking(docRef);
     toast({ title: 'Success', description: 'Session deleted successfully.'});
   }
 
@@ -70,7 +76,7 @@ export function SessionCard({ session }: SessionCardProps) {
           </CardDescription>
         </div>
         <div className="flex items-center gap-1">
-          <EditSessionDialog session={{...session, date: sessionDate}}>
+          <EditSessionDialog session={session}>
             <Button variant="ghost" size="icon" aria-label="Edit session">
               <Edit className="h-4 w-4 text-muted-foreground hover:text-primary" />
             </Button>

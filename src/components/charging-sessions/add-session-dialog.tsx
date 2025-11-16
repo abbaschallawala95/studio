@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon, Loader2 } from 'lucide-react';
+import { doc } from 'firebase/firestore';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -30,9 +31,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
-import { addChargingSession } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
-import { useUser } from '@/firebase';
+import { useFirestore, useUser, setDocumentNonBlocking } from '@/firebase';
 import { Textarea } from '../ui/textarea';
 
 const formSchema = z
@@ -64,6 +64,7 @@ export function AddSessionDialog({ children }: { children: React.ReactNode }) {
   const [isPending, startTransition] = React.useTransition();
   const { toast } = useToast();
   const { user } = useUser();
+  const firestore = useFirestore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -78,36 +79,26 @@ export function AddSessionDialog({ children }: { children: React.ReactNode }) {
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    if (!user) {
+    if (!user || !firestore) {
       toast({ title: 'Error', description: 'You must be logged in to add a session.', variant: 'destructive' });
       return;
     }
-    const formData = new FormData();
-    formData.append('date', values.date.toISOString());
-    formData.append('startTime', values.startTime);
-    formData.append('endTime', values.endTime);
-    formData.append('startPercentage', values.startPercentage.toString());
-    formData.append('endPercentage', values.endPercentage.toString());
-    if (values.notes) {
-      formData.append('notes', values.notes);
-    }
+    
+    startTransition(() => {
+      const sessionRef = doc(firestore, 'users', user.uid, 'charging_sessions', crypto.randomUUID());
+      const sessionData = {
+        ...values,
+        id: sessionRef.id,
+      };
 
-    startTransition(async () => {
-      const result = await addChargingSession(user.uid, formData);
-      if (result?.message.includes('Error')) {
-        toast({
-          title: 'Error',
-          description: result.message,
-          variant: 'destructive',
-        });
-      } else {
-        toast({
-          title: 'Success',
-          description: result.message,
-        });
-        setOpen(false);
-        form.reset();
-      }
+      setDocumentNonBlocking(sessionRef, sessionData, { merge: false });
+
+      toast({
+        title: 'Success',
+        description: 'Charging session logged.',
+      });
+      setOpen(false);
+      form.reset();
     });
   };
 
