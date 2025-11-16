@@ -25,9 +25,7 @@ service cloud.firestore {
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId} {
-      allow get: if isOwner(userId);
-      allow update: if isOwner(userId);
-      allow create: if isOwner(userId);
+      allow get, update, create: if isOwner(userId);
       deny delete, list;
     }
 
