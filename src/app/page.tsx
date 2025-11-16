@@ -13,7 +13,7 @@ import {
   useUser,
 } from '@/firebase';
 import { initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, Timestamp } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import type { ChargingSession } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -42,12 +42,17 @@ export default function Home() {
   const { data: sessions, isLoading: sessionsLoading } =
     useCollection<ChargingSession>(sessionsQuery);
 
+  const getSessionDate = (sessionDate: ChargingSession['date']) => {
+    if (sessionDate instanceof Timestamp) return sessionDate.toDate();
+    if (typeof sessionDate === 'string') return new Date(sessionDate);
+    return sessionDate as Date;
+  };
+
   const sortedSessions = useMemo(() => {
     if (!sessions) return [];
-    // The data is already sorted by Firestore query, but we ensure date objects are correctly handled
     return sessions.map(s => ({
         ...s,
-        date: new Date(s.date),
+        date: getSessionDate(s.date),
       })).sort((a, b) => b.date.getTime() - a.date.getTime());
   }, [sessions]);
     

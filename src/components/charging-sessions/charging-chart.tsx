@@ -20,6 +20,7 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from '@/components/ui/chart';
+import { Timestamp } from 'firebase/firestore';
 
 interface ChargingChartProps {
   sessions: ChargingSession[];
@@ -37,10 +38,16 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function ChargingChart({ sessions }: ChargingChartProps) {
+  const getSessionDate = (sessionDate: ChargingSession['date']) => {
+    if (sessionDate instanceof Timestamp) return sessionDate.toDate();
+    if (typeof sessionDate === 'string') return new Date(sessionDate);
+    return sessionDate as Date;
+  };
+  
   const chartData = React.useMemo(() => {
     return sessions
       .map((session) => ({
-        date: format(session.date, 'MMM d'),
+        date: format(getSessionDate(session.date), 'MMM d'),
         startPercentage: session.startPercentage,
         endPercentage: session.endPercentage,
       }))
