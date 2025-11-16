@@ -1,17 +1,41 @@
-import { generateChargingInsights } from '@/ai/flows/charging-data-insights';
+'use client';
+
+import * as React from 'react';
+import { generateChargingInsights, ChargingDataInsightsOutput } from '@/ai/flows/charging-data-insights';
 import type { ChargingSession } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock, BatteryCharging, Zap } from 'lucide-react';
 import { format } from 'date-fns';
+import { Skeleton } from '../ui/skeleton';
 
 interface ChargingSummaryProps {
   sessions: ChargingSession[];
 }
 
-export default async function ChargingSummary({ sessions }: ChargingSummaryProps) {
+export default function ChargingSummary({ sessions }: ChargingSummaryProps) {
+  const [insights, setInsights] = React.useState<ChargingDataInsightsOutput | null>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    if (sessions.length > 0) {
+      setLoading(true);
+      const formattedSessions = sessions.map((s) => ({
+        ...s,
+        date: format(s.date instanceof Date ? s.date : new Date(s.date), 'yyyy-MM-dd'),
+      }));
+
+      generateChargingInsights({ chargingSessions: formattedSessions })
+        .then(setInsights)
+        .catch(console.error)
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, [sessions]);
+  
   if (sessions.length === 0) {
     return (
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Charging Time</CardTitle>
@@ -46,12 +70,15 @@ export default async function ChargingSummary({ sessions }: ChargingSummaryProps
     );
   }
 
-  const formattedSessions = sessions.map((s) => ({
-    ...s,
-    date: format(s.date, 'yyyy-MM-dd'),
-  }));
-
-  const insights = await generateChargingInsights({ chargingSessions: formattedSessions });
+  if (loading || !insights) {
+    return (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap-8">
+            <Skeleton className="h-[118px] w-full" />
+            <Skeleton className="h-[118px] w-full" />
+            <Skeleton className="h-[118px] w-full" />
+        </div>
+    )
+  }
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap-8">
