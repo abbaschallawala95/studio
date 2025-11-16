@@ -59,10 +59,10 @@ export function AppSidebar() {
             <Link href="/history">
               <SidebarMenuButton
                 isActive={pathname === '/history'}
-                tooltip="Session History"
+                tooltip="Charging History"
               >
                 <History />
-                <span>Session History</span>
+                <span>Charging History</span>
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>

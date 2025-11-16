@@ -54,7 +54,7 @@ export default function SessionList({ sessions: initialSessions }: SessionListPr
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center gap-2">
           <History className="h-5 w-5 text-muted-foreground" />
-          <CardTitle>Session History</CardTitle>
+          <CardTitle>Charging History</CardTitle>
         </div>
         <Select value={sortOrder} onValueChange={(value) => setSortOrder(value as SortOption)}>
           <SelectTrigger className="w-[180px]">
