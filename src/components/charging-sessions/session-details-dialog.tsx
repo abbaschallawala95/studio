@@ -64,7 +64,7 @@ export function SessionDetailsDialog({ session, children }: SessionDetailsDialog
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="p-0 w-[95vw] max-w-lg rounded-lg">
+      <DialogContent className="p-0 w-[85vw] max-w-lg rounded-lg">
         <DialogHeader className="p-6 pb-4">
           <DialogTitle>Charging History</DialogTitle>
           <DialogDescription>
