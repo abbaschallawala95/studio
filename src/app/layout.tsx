@@ -5,7 +5,7 @@ import { FirebaseClientProvider } from '@/firebase';
 import { SidebarProvider } from '@/components/ui/sidebar';
 
 export const metadata: Metadata = {
-  title: 'eScotty Tracker',
+  title: 'eScotty',
   description: 'Track your electric scooter charging sessions.',
 };
 

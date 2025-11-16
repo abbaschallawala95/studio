@@ -7,8 +7,9 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
+  SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { Power, LayoutDashboard, User, Plus, History } from 'lucide-react';
+import { Power, LayoutDashboard, User, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { AddSessionDialog } from '../charging-sessions/add-session-dialog';
@@ -20,11 +21,14 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarHeader>
-          <div className="flex items-center gap-2">
-            <Power className="h-6 w-6 text-primary" />
-            <h1 className="text-xl font-semibold tracking-tight">
-              eScotty Tracker
-            </h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Power className="h-6 w-6 text-primary" />
+              <h1 className="text-xl font-semibold tracking-tight">
+                eScotty
+              </h1>
+            </div>
+            <SidebarTrigger className="hidden md:flex" />
           </div>
         </SidebarHeader>
         <SidebarMenu>

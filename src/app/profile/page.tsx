@@ -52,9 +52,9 @@ export default function ProfilePage() {
                         <CardDescription>Update your tracker's name and image.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        <div className="flex items-center gap-6">
+                        <div className="flex flex-col sm:flex-row items-center gap-6">
                             <div className="relative">
-                                <Avatar className="h-20 w-20">
+                                <Avatar className="h-24 w-24 sm:h-20 sm:w-20">
                                     <AvatarImage src={trackerImage || "https://picsum.photos/seed/scooter/200/200"} alt="Tracker" data-ai-hint="electric scooter"/>
                                     <AvatarFallback>ES</AvatarFallback>
                                 </Avatar>
@@ -63,7 +63,7 @@ export default function ProfilePage() {
                                 </Label>
                                 <Input id="image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
                             </div>
-                            <div className="flex-1 space-y-2">
+                            <div className="w-full flex-1 space-y-2">
                                 <Label htmlFor="tracker-name">Tracker Name</Label>
                                 <Input id="tracker-name" value={trackerName} onChange={handleNameChange} />
                             </div>
