@@ -64,14 +64,14 @@ export function SessionDetailsDialog({ session, children }: SessionDetailsDialog
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="p-0 w-[95vw] max-h-[90vh] rounded-lg sm:max-w-lg">
+      <DialogContent className="p-0 sm:max-w-lg">
         <DialogHeader className="p-6 pb-4">
           <DialogTitle>Charging History</DialogTitle>
           <DialogDescription>
             {format(sessionDate, 'd MMMM, ')} {formatTime12h(session.startTime)} - {formatTime12h(session.endTime)}
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="h-full">
+        <ScrollArea className="max-h-[calc(90vh-10rem)]">
             <div className="space-y-4 px-6 pb-6">
                 <div className="grid gap-4 rounded-lg border bg-card text-card-foreground">
                     <div className="p-6">
@@ -109,6 +109,7 @@ export function SessionDetailsDialog({ session, children }: SessionDetailsDialog
             
             {session.notes && (
                 <div className="space-y-2">
+                 <p className="text-sm font-medium text-muted-foreground">Notes</p>
                 <p className="text-sm text-muted-foreground rounded-md border p-3 bg-muted/50 break-words">
                     {session.notes}
                 </p>
