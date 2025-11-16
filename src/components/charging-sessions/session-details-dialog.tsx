@@ -13,7 +13,7 @@ import type { ChargingSession } from '@/lib/types';
 import { format, intervalToDuration } from 'date-fns';
 import { Timestamp } from 'firebase/firestore';
 import { SingleSessionChart } from './single-session-chart';
-import { Timer, Zap, BatteryCharging } from 'lucide-react';
+import { Timer, Zap, BatteryCharging, Power } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
 
 interface SessionDetailsDialogProps {
@@ -67,58 +67,58 @@ export function SessionDetailsDialog({ session, children }: SessionDetailsDialog
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="p-0 w-[95vw] max-w-md rounded-lg max-h-[90vh] flex flex-col">
-        <DialogHeader className="p-6 pb-4">
+        <DialogHeader className="p-6 pb-4 border-b">
           <DialogTitle>Charging Details</DialogTitle>
           <DialogDescription>
-            {format(sessionDate, 'MMMM d, yyyy')}
+            {format(sessionDate, 'MMMM d, yyyy')} &bull; {formatTime12h(session.startTime)} - {formatTime12h(session.endTime)}
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="flex-1 px-6 pb-6">
-            <div className="grid gap-6">
-                <div className="grid gap-4 rounded-lg border">
-                    <div className="p-4 grid gap-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3 text-muted-foreground">
-                                <Timer className="h-5 w-5" />
-                                <span className="font-medium">Charging Time</span>
-                            </div>
-                            <span className="font-bold">{getDuration()}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3 text-muted-foreground">
-                                <BatteryCharging className="h-5 w-5" />
-                                <span className="font-medium">Charge Added</span>
-                            </div>
-                            <span className="font-bold text-green-600">+{chargeGained}%</span>
-                        </div>
-                        {session.energyConsumed && session.energyConsumed > 0 && (
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3 text-muted-foreground">
-                                    <Zap className="h-5 w-5" />
-                                    <span className="font-medium">Energy Used</span>
-                                </div>
-                                <span className="font-bold">{session.energyConsumed} kWh</span>
-                            </div>
-                        )}
-                         <div className="flex items-center justify-between">
-                            <span className="font-medium text-muted-foreground">Start / End SOC</span>
-                            <span className="font-bold">{session.startPercentage}% &rarr; {session.endPercentage}%</span>
-                        </div>
+        <ScrollArea className="flex-1">
+            <div className="p-6 grid gap-6">
+                <div className="grid gap-4 rounded-lg border p-4">
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Timer className="h-4 w-4" />
+                        <span>Charging Time</span>
+                      </div>
+                      <div className="text-right font-bold">{getDuration()}</div>
+                      
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <BatteryCharging className="h-4 w-4" />
+                        <span>Charge Added</span>
+                      </div>
+                      <div className="text-right font-bold text-green-600">+{chargeGained}%</div>
 
-                    </div>
-                    <div className="h-[200px] w-full bg-card rounded-b-lg">
-                        <SingleSessionChart session={session} />
-                    </div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Power className="h-4 w-4" />
+                        <span>Start / End SOC</span>
+                      </div>
+                      <div className="text-right font-bold">{session.startPercentage}% &rarr; {session.endPercentage}%</div>
+
+                      {session.energyConsumed && session.energyConsumed > 0 && (
+                        <>
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Zap className="h-4 w-4" />
+                            <span>Energy Used</span>
+                          </div>
+                          <div className="text-right font-bold">{session.energyConsumed} kWh</div>
+                        </>
+                      )}
+                  </div>
+                </div>
+
+                <div className="h-[200px] w-full bg-card rounded-lg border">
+                    <SingleSessionChart session={session} />
                 </div>
             
-            {session.notes && (
-                <div className="space-y-2">
-                    <p className="text-sm font-medium text-card-foreground">Notes</p>
-                    <p className="text-sm text-muted-foreground rounded-md border p-3 bg-muted/50 break-words">
-                        {session.notes}
-                    </p>
-                </div>
-            )}
+                {session.notes && (
+                    <div className="space-y-2">
+                        <p className="text-sm font-medium text-card-foreground">Notes</p>
+                        <p className="text-sm text-muted-foreground rounded-md border p-3 bg-muted/50 break-words whitespace-pre-wrap">
+                            {session.notes}
+                        </p>
+                    </div>
+                )}
             </div>
         </ScrollArea>
       </DialogContent>
