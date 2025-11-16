@@ -9,12 +9,12 @@ import type { ChargingSession } from '@/lib/types';
 import { History } from 'lucide-react';
 
 interface SessionListProps {
-  initialSessions: ChargingSession[];
+  sessions: ChargingSession[];
 }
 
 type SortOption = 'newest' | 'oldest' | 'duration';
 
-export default function SessionList({ initialSessions }: SessionListProps) {
+export default function SessionList({ sessions: initialSessions }: SessionListProps) {
   const [sortOrder, setSortOrder] = React.useState<SortOption>('newest');
   const [sessions, setSessions] = React.useState(initialSessions);
 
@@ -32,16 +32,18 @@ export default function SessionList({ initialSessions }: SessionListProps) {
 
   React.useEffect(() => {
     const sorted = [...initialSessions].sort((a, b) => {
+      const aDate = a.date instanceof Date ? a.date : new Date(a.date);
+      const bDate = b.date instanceof Date ? b.date : new Date(b.date);
       switch (sortOrder) {
         case 'oldest':
-          return a.date.getTime() - b.date.getTime();
+          return aDate.getTime() - bDate.getTime();
         case 'duration':
           const durationA = getDuration(a.startTime, a.endTime);
           const durationB = getDuration(b.startTime, b.endTime);
           return durationB - durationA;
         case 'newest':
         default:
-          return b.date.getTime() - a.date.getTime();
+          return bDate.getTime() - aDate.getTime();
       }
     });
     setSessions(sorted);

@@ -1,5 +1,7 @@
 import type { ChargingSession } from './types';
 
+// This file is now deprecated as we are using Firestore.
+// It is kept here for reference but is no longer used in the application.
 export const placeholderSessions: ChargingSession[] = [
   {
     id: '1',

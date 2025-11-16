@@ -30,9 +30,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
-import { addChargingSession } from '@/lib/actions';
+import { updateChargingSession } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
+import type { ChargingSession } from '@/lib/types';
 import { Textarea } from '../ui/textarea';
 
 const formSchema = z
@@ -59,7 +60,7 @@ const formSchema = z
     path: ['endPercentage'],
   });
 
-export function AddSessionDialog({ children }: { children: React.ReactNode }) {
+export function EditSessionDialog({ session, children }: { session: ChargingSession, children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false);
   const [isPending, startTransition] = React.useTransition();
   const { toast } = useToast();
@@ -68,18 +69,18 @@ export function AddSessionDialog({ children }: { children: React.ReactNode }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      date: new Date(),
-      startTime: '',
-      endTime: '',
-      startPercentage: 20,
-      endPercentage: 80,
-      notes: '',
+      date: session.date instanceof Date ? session.date : new Date(session.date),
+      startTime: session.startTime,
+      endTime: session.endTime,
+      startPercentage: session.startPercentage,
+      endPercentage: session.endPercentage,
+      notes: session.notes || '',
     },
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (!user) {
-      toast({ title: 'Error', description: 'You must be logged in to add a session.', variant: 'destructive' });
+      toast({ title: 'Error', description: 'You must be logged in to edit a session.', variant: 'destructive' });
       return;
     }
     const formData = new FormData();
@@ -93,7 +94,7 @@ export function AddSessionDialog({ children }: { children: React.ReactNode }) {
     }
 
     startTransition(async () => {
-      const result = await addChargingSession(user.uid, formData);
+      const result = await updateChargingSession(user.uid, session.id, formData);
       if (result?.message.includes('Error')) {
         toast({
           title: 'Error',
@@ -106,24 +107,30 @@ export function AddSessionDialog({ children }: { children: React.ReactNode }) {
           description: result.message,
         });
         setOpen(false);
-        form.reset();
       }
     });
   };
 
   React.useEffect(() => {
-    if (!open) {
-      form.reset();
+    if (open) {
+        form.reset({
+            date: session.date instanceof Date ? session.date : new Date(session.date),
+            startTime: session.startTime,
+            endTime: session.endTime,
+            startPercentage: session.startPercentage,
+            endPercentage: session.endPercentage,
+            notes: session.notes || '',
+        });
     }
-  }, [open, form]);
+  }, [open, session, form]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>Add Charging Session</DialogTitle>
-          <DialogDescription>Log a new charging session for your eScotty.</DialogDescription>
+          <DialogTitle>Edit Charging Session</DialogTitle>
+          <DialogDescription>Update the details for your charging session.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -226,7 +233,7 @@ export function AddSessionDialog({ children }: { children: React.ReactNode }) {
                 </FormItem>
               )}
             />
-             <FormField
+            <FormField
               control={form.control}
               name="notes"
               render={({ field }) => (
@@ -242,7 +249,7 @@ export function AddSessionDialog({ children }: { children: React.ReactNode }) {
             <DialogFooter>
               <Button type="submit" disabled={isPending}>
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Log Session
+                Save Changes
               </Button>
             </DialogFooter>
           </form>
