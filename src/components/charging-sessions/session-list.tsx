@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SessionCard } from './session-card';
 import type { ChargingSession } from '@/lib/types';
-import { History } from 'lucide-react';
+import { BatteryCharging } from 'lucide-react';
 
 interface SessionListProps {
   sessions: ChargingSession[];
@@ -53,7 +53,7 @@ export default function SessionList({ sessions: initialSessions }: SessionListPr
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center gap-2">
-          <History className="h-5 w-5 text-muted-foreground" />
+          <BatteryCharging className="h-5 w-5 text-muted-foreground" />
           <CardTitle>Charging History</CardTitle>
         </div>
         <Select value={sortOrder} onValueChange={(value) => setSortOrder(value as SortOption)}>
