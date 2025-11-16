@@ -64,14 +64,14 @@ export function SessionDetailsDialog({ session, children }: SessionDetailsDialog
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="w-[90vw] max-w-md rounded-lg p-0">
+      <DialogContent className="p-0 w-[95vw] max-w-md rounded-lg max-h-[90vh] flex flex-col">
         <DialogHeader className="p-6 pb-4">
           <DialogTitle>Charging History</DialogTitle>
           <DialogDescription>
             {format(sessionDate, 'd MMMM, ')} {formatTime12h(session.startTime)} - {formatTime12h(session.endTime)}
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="max-h-[60vh] px-6 pb-6">
+        <ScrollArea className="px-6 pb-6">
             <div className="space-y-4">
                 <div className="grid gap-4 rounded-lg border bg-card text-card-foreground">
                     <div className="p-6">
