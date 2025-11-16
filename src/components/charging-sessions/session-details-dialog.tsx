@@ -14,6 +14,7 @@ import { format, intervalToDuration } from 'date-fns';
 import { Timestamp } from 'firebase/firestore';
 import { SingleSessionChart } from './single-session-chart';
 import { Timer, Zap } from 'lucide-react';
+import { ScrollArea } from '../ui/scroll-area';
 
 interface SessionDetailsDialogProps {
   session: ChargingSession;
@@ -64,55 +65,57 @@ export function SessionDetailsDialog({ session, children }: SessionDetailsDialog
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-lg p-0">
-        <DialogHeader className="p-6 pb-0">
+        <DialogHeader className="p-6 pb-4">
           <DialogTitle>Charging History</DialogTitle>
           <DialogDescription>
             {format(sessionDate, 'd MMMM, ')} {formatTime12h(session.startTime)} - {formatTime12h(session.endTime)}
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 px-6 pb-6">
-            <div className="grid gap-4 rounded-lg border bg-card text-card-foreground">
-                <div className="p-6">
-                    <div className="flex flex-col space-y-4">
-                        <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                                <Timer className="h-5 w-5" />
-                                <span className="font-medium">Charging Time</span>
-                            </div>
-                            <span className="font-bold">{getDuration()}</span>
-                        </div>
-                        {session.energyConsumed && (
+        <ScrollArea className="max-h-[80vh]">
+            <div className="space-y-4 px-6 pb-6">
+                <div className="grid gap-4 rounded-lg border bg-card text-card-foreground">
+                    <div className="p-6">
+                        <div className="flex flex-col space-y-4">
                             <div className="flex justify-between items-center">
                                 <div className="flex items-center gap-2 text-muted-foreground">
-                                    <Zap className="h-5 w-5" />
-                                    <span className="font-medium">Energy Consumed</span>
+                                    <Timer className="h-5 w-5" />
+                                    <span className="font-medium">Charging Time</span>
                                 </div>
-                                <span className="font-bold">{session.energyConsumed} kWh</span>
+                                <span className="font-bold">{getDuration()}</span>
                             </div>
-                        )}
-                        <div className="flex justify-between items-center">
-                            <span className="font-medium text-muted-foreground">Start SOC</span>
-                            <span className="font-bold">{session.startPercentage}%</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                             <span className="font-medium text-muted-foreground">End SOC</span>
-                            <span className="font-bold">{session.endPercentage}%</span>
+                            {session.energyConsumed && (
+                                <div className="flex justify-between items-center">
+                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                        <Zap className="h-5 w-5" />
+                                        <span className="font-medium">Energy Consumed</span>
+                                    </div>
+                                    <span className="font-bold">{session.energyConsumed} kWh</span>
+                                </div>
+                            )}
+                            <div className="flex justify-between items-center">
+                                <span className="font-medium text-muted-foreground">Start SOC</span>
+                                <span className="font-bold">{session.startPercentage}%</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="font-medium text-muted-foreground">End SOC</span>
+                                <span className="font-bold">{session.endPercentage}%</span>
+                            </div>
                         </div>
                     </div>
+                    <div className="h-[250px] w-full bg-card rounded-b-lg -mt-6">
+                        <SingleSessionChart session={session} />
+                    </div>
                 </div>
-                 <div className="h-[250px] w-full bg-card rounded-b-lg -mt-6">
-                    <SingleSessionChart session={session} />
+            
+            {session.notes && (
+                <div className="space-y-2">
+                <p className="text-sm text-muted-foreground rounded-md border p-3 bg-muted/50">
+                    {session.notes}
+                </p>
                 </div>
+            )}
             </div>
-          
-          {session.notes && (
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground rounded-md border p-3 bg-muted/50">
-                {session.notes}
-              </p>
-            </div>
-          )}
-        </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
