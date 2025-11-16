@@ -19,6 +19,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { EditSessionDialog } from './edit-session-dialog';
+import { Timestamp } from 'firebase/firestore';
 
 
 interface SessionCardProps {
@@ -30,8 +31,9 @@ export function SessionCard({ session }: SessionCardProps) {
   const { user } = useUser();
   const { toast } = useToast();
 
+  const sessionDate = date instanceof Timestamp ? date.toDate() : new Date(date);
+
   const getDuration = () => {
-    const sessionDate = date instanceof Date ? date : new Date(date);
     const startDate = new Date(`${format(sessionDate, 'yyyy-MM-dd')}T${startTime}`);
     let endDate = new Date(`${format(sessionDate, 'yyyy-MM-dd')}T${endTime}`);
 
@@ -55,8 +57,6 @@ export function SessionCard({ session }: SessionCardProps) {
     toast({ title: 'Success', description: 'Session deleted successfully.'});
   }
 
-  const sessionDate = date instanceof Date ? date : new Date(date);
-
   return (
     <Card className="transition-all hover:shadow-md">
       <CardHeader className="flex flex-row items-start justify-between pb-2">
@@ -70,7 +70,7 @@ export function SessionCard({ session }: SessionCardProps) {
           </CardDescription>
         </div>
         <div className="flex items-center gap-1">
-          <EditSessionDialog session={session}>
+          <EditSessionDialog session={{...session, date: sessionDate}}>
             <Button variant="ghost" size="icon" aria-label="Edit session">
               <Edit className="h-4 w-4 text-muted-foreground hover:text-primary" />
             </Button>

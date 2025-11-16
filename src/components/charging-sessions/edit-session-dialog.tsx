@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon, Loader2 } from 'lucide-react';
+import { Timestamp } from 'firebase/firestore';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -66,10 +67,12 @@ export function EditSessionDialog({ session, children }: { session: ChargingSess
   const { toast } = useToast();
   const { user } = useUser();
 
+  const sessionDate = session.date instanceof Timestamp ? session.date.toDate() : new Date(session.date);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      date: session.date instanceof Date ? session.date : new Date(session.date),
+      date: sessionDate,
       startTime: session.startTime,
       endTime: session.endTime,
       startPercentage: session.startPercentage,
@@ -113,8 +116,9 @@ export function EditSessionDialog({ session, children }: { session: ChargingSess
 
   React.useEffect(() => {
     if (open) {
+        const sessionDate = session.date instanceof Timestamp ? session.date.toDate() : new Date(session.date);
         form.reset({
-            date: session.date instanceof Date ? session.date : new Date(session.date),
+            date: sessionDate,
             startTime: session.startTime,
             endTime: session.endTime,
             startPercentage: session.startPercentage,

@@ -2,9 +2,8 @@
 
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import { addDoc, collection, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { getFirestore } from 'firebase-admin/firestore';
-import { initializeServerApp } from '@/firebase';
+import { getFirestore, Timestamp } from 'firebase-admin/firestore';
+import { initializeServerApp } from '@/firebase/server';
 
 const sessionSchema = z
   .object({
@@ -16,7 +15,6 @@ const sessionSchema = z
     notes: z.string().optional(),
   })
   .refine((data) => {
-    // This logic can be simplified, but for now, we'll keep it
     const start = new Date(`1970-01-01T${data.startTime}`);
     const end = new Date(`1970-01-01T${data.endTime}`);
     return end > start;
@@ -50,15 +48,13 @@ export async function addChargingSession(userId: string, formData: FormData) {
     }
 
     try {
+        const sessionRef = firestore.collection('users').doc(userId).collection('charging_sessions').doc();
         const sessionData = {
             ...validatedFields.data,
-            date: validatedFields.data.date.toISOString(),
+            id: sessionRef.id,
+            date: Timestamp.fromDate(validatedFields.data.date),
         }
-        const sessionsCollectionRef = collection(firestore, 'users', userId, 'charging_sessions');
-        // The type mismatch is expected here as we are using the client SDK with the Admin SDK
-        // This will be resolved in a future update.
-        // @ts-ignore
-        await addDoc(sessionsCollectionRef, sessionData);
+        await sessionRef.set(sessionData);
         revalidatePath('/');
         return { message: 'Successfully added charging session.', errors: {} };
     } catch (e: any) {
@@ -87,15 +83,12 @@ export async function updateChargingSession(userId: string, sessionId: string, f
     }
 
     try {
+        const sessionDocRef = firestore.collection('users').doc(userId).collection('charging_sessions').doc(sessionId);
         const sessionData = {
             ...validatedFields.data,
-            date: validatedFields.data.date.toISOString(),
-            id: sessionId
+            date: Timestamp.fromDate(validatedFields.data.date),
         }
-        const sessionDocRef = doc(firestore, 'users', userId, 'charging_sessions', sessionId);
-        // The type mismatch is expected here as we are using the client SDK with the Admin SDK
-        // @ts-ignore
-        await updateDoc(sessionDocRef, sessionData);
+        await sessionDocRef.update(sessionData);
         revalidatePath('/');
         return { message: 'Successfully updated charging session.', errors: {} };
     } catch (e: any) {
@@ -108,13 +101,12 @@ export async function deleteChargingSession(userId: string, sessionId: string) {
   await initializeServerApp();
   const firestore = getFirestore();
   try {
-    const sessionDocRef = doc(firestore, 'users', userId, 'charging_sessions', sessionId);
-    // The type mismatch is expected here as we are using the client SDK with the Admin SDK
-    // @ts-ignore
-    await deleteDoc(sessionDocRef);
+    const sessionDocRef = firestore.collection('users').doc(userId).collection('charging_sessions').doc(sessionId);
+    await sessionDocRef.delete();
     revalidatePath('/');
   } catch (e: any) {
     console.error('Error deleting session:', e);
     // Optionally return an error message
+    return { message: `Error: Could not delete session. ${e.message}`, errors: {} };
   }
 }
