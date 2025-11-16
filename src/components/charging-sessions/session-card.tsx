@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { EditSessionDialog } from './edit-session-dialog';
 import { Timestamp, doc } from 'firebase/firestore';
+import { SessionDetailsDialog } from './session-details-dialog';
 
 
 interface SessionCardProps {
@@ -72,61 +73,63 @@ export function SessionCard({ session }: SessionCardProps) {
   };
 
   return (
-    <Card className="transition-all hover:shadow-md">
-      <CardHeader className="flex flex-row items-start justify-between pb-2">
-        <div>
-          <CardTitle className="text-lg font-medium">{format(sessionDate, 'MMMM d, yyyy')}</CardTitle>
-          <CardDescription>
-            <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-              <Timer className="h-4 w-4" />
-              <span>{formatTime12h(startTime)} &rarr; {formatTime12h(endTime)}</span>
-            </div>
-          </CardDescription>
-        </div>
-        <div className="flex items-center gap-1">
-          <EditSessionDialog session={session}>
-            <Button variant="ghost" size="icon" aria-label="Edit session">
-              <Edit className="h-4 w-4 text-muted-foreground hover:text-primary" />
-            </Button>
-          </EditSessionDialog>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Delete session">
-                <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete your charging session.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                      <Percent className="h-4 w-4" />
-                      <span className="font-medium text-foreground">{startPercentage}% &rarr; {endPercentage}%</span>
-                  </div>
-                  <Badge variant="secondary">+{chargeGained}%</Badge>
+    <SessionDetailsDialog session={session}>
+      <Card className="transition-all hover:shadow-md cursor-pointer hover:border-primary/50">
+        <CardHeader className="flex flex-row items-start justify-between pb-2"  onClick={(e) => e.stopPropagation()}>
+          <div>
+            <CardTitle className="text-lg font-medium">{format(sessionDate, 'MMMM d, yyyy')}</CardTitle>
+            <CardDescription>
+              <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                <Timer className="h-4 w-4" />
+                <span>{formatTime12h(startTime)} &rarr; {formatTime12h(endTime)}</span>
               </div>
-              <div className="font-medium text-right">{getDuration()}</div>
+            </CardDescription>
           </div>
-          {notes && (
-            <p className="text-sm text-muted-foreground border-t pt-3">{notes}</p>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+          <div className="flex items-center gap-1">
+            <EditSessionDialog session={session}>
+              <Button variant="ghost" size="icon" aria-label="Edit session">
+                <Edit className="h-4 w-4 text-muted-foreground hover:text-primary" />
+              </Button>
+            </EditSessionDialog>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="Delete session">
+                  <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your charging session.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                        <Percent className="h-4 w-4" />
+                        <span className="font-medium text-foreground">{startPercentage}% &rarr; {endPercentage}%</span>
+                    </div>
+                    <Badge variant="secondary">+{chargeGained}%</Badge>
+                </div>
+                <div className="font-medium text-right">{getDuration()}</div>
+            </div>
+            {notes && (
+              <p className="text-sm text-muted-foreground border-t pt-3">{notes}</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </SessionDetailsDialog>
   );
 }
