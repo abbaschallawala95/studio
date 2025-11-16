@@ -6,10 +6,9 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarTrigger,
   SidebarFooter,
 } from '@/components/ui/sidebar';
-import { Power, LayoutDashboard, User, Plus } from 'lucide-react';
+import { Power, LayoutDashboard, User, Plus, History } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { AddSessionDialog } from '../charging-sessions/add-session-dialog';

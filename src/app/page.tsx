@@ -17,7 +17,7 @@ import { collection, query, orderBy, Timestamp } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import type { ChargingSession } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Sidebar, SidebarContent, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarHeader, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/sidebar';
 
 export default function Home() {
