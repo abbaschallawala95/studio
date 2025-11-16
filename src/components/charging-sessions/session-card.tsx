@@ -62,6 +62,14 @@ export function SessionCard({ session }: SessionCardProps) {
     deleteDocumentNonBlocking(docRef);
     toast({ title: 'Success', description: 'Session deleted successfully.'});
   }
+  
+  const formatTime12h = (time: string) => {
+    const [hours, minutes] = time.split(':');
+    const date = new Date();
+    date.setHours(parseInt(hours));
+    date.setMinutes(parseInt(minutes));
+    return format(date, 'hh:mm a');
+  };
 
   return (
     <Card className="transition-all hover:shadow-md">
@@ -71,7 +79,7 @@ export function SessionCard({ session }: SessionCardProps) {
           <CardDescription>
             <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
               <Timer className="h-4 w-4" />
-              <span>{startTime} &rarr; {endTime}</span>
+              <span>{formatTime12h(startTime)} &rarr; {formatTime12h(endTime)}</span>
             </div>
           </CardDescription>
         </div>
