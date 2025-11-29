@@ -5,7 +5,7 @@ import { getChargingInsights } from '@/lib/actions';
 import type { ChargingDataInsightsOutput } from '@/ai/flows/charging-data-insights';
 import type { ChargingSession } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BatteryCharging, Zap } from 'lucide-react';
+import { BatteryCharging, Zap, Power } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 
 interface ChargingSummaryProps {
@@ -21,6 +21,7 @@ export default function ChargingSummary({ sessions }: ChargingSummaryProps) {
         if (sessions.length > 0) {
             setLoading(true);
             try {
+                // The server action now does the heavy lifting.
                 const result = await getChargingInsights(sessions);
                 setInsights(result);
             } catch (error) {
@@ -40,7 +41,7 @@ export default function ChargingSummary({ sessions }: ChargingSummaryProps) {
   
   if (sessions.length === 0) {
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap-8">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 md:gap-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Charging Time</CardTitle>
@@ -63,6 +64,16 @@ export default function ChargingSummary({ sessions }: ChargingSummaryProps) {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Energy Used</CardTitle>
+            <Power className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">N/A</div>
+            <p className="text-xs text-muted-foreground">No sessions logged yet</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Peak Charging Hours</CardTitle>
             <Zap className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -77,7 +88,8 @@ export default function ChargingSummary({ sessions }: ChargingSummaryProps) {
 
   if (loading || !insights) {
     return (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap-8">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 md:gap-8">
+            <Skeleton className="h-[118px] w-full" />
             <Skeleton className="h-[118px] w-full" />
             <Skeleton className="h-[118px] w-full" />
             <Skeleton className="h-[118px] w-full" />
@@ -86,7 +98,7 @@ export default function ChargingSummary({ sessions }: ChargingSummaryProps) {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap_8">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 md:gap_8">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Charging Time</CardTitle>
@@ -109,12 +121,22 @@ export default function ChargingSummary({ sessions }: ChargingSummaryProps) {
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Total Energy Used</CardTitle>
+          <Power className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{insights.totalEnergyConsumed}</div>
+          <p className="text-xs text-muted-foreground">Total kWh consumed</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Peak Charging Hours</CardTitle>
           <Zap className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{insights.mostFrequentChargingTimes}</div>
-          <p className="text-xs text-muted-foreground">Most common time to start charging</p>
+          <p className="text-xs text-muted-foreground">Most common time to charge</p>
         </CardContent>
       </Card>
     </div>

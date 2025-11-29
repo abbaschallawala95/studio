@@ -38,6 +38,9 @@ const ChargingDataInsightsOutputSchema = z.object({
   mostFrequentChargingTimes: z
     .string()
     .describe('The most frequent charging times.'),
+  totalEnergyConsumed: z
+    .string()
+    .describe('The total energy consumed across all sessions in kWh.'),
 });
 export type ChargingDataInsightsOutput = z.infer<typeof ChargingDataInsightsOutputSchema>;
 
@@ -51,24 +54,25 @@ const prompt = ai.definePrompt({
   name: 'chargingDataInsightsPrompt',
   input: {schema: ChargingDataInsightsInputSchema},
   output: {schema: ChargingDataInsightsOutputSchema},
-  prompt: `You are an AI assistant specializing in analyzing electric vehicle charging data and providing insights to users.
+  prompt: `You are an AI assistant specializing in analyzing electric scooter charging data. Your task is to provide insightful summaries based on the user's charging history.
 
-  Given the following charging session data, generate insights into the user's charging habits, including:
-  - Total charging time across all sessions.
-  - Average charge gained per session.
-  - Most frequent charging times.
+  ASSUMPTIONS FOR CALCULATION:
+  - The electric scooter has an average battery capacity of 0.5 kWh (500Wh).
 
-  Charging Session Data:
+  CALCULATIONS:
+  1. For each session, calculate the energy consumed in kWh. The formula is: (endPercentage - startPercentage) / 100 * 0.5 kWh.
+  2. Calculate 'totalEnergyConsumed' by summing the energy consumed from all sessions. Format it to two decimal places (e.g., "1.23 kWh").
+  3. Calculate 'totalChargingTime' by summing the duration of all sessions. Provide a human-readable format (e.g., "1 day 4 hours").
+  4. Calculate 'averageChargePerSession' as the average percentage points gained per session.
+  5. Determine the 'mostFrequentChargingTimes' by analyzing the start times of the sessions (e.g., "Late Evening").
+
+  USER DATA:
   {{#each chargingSessions}}
-  - Date: {{date}}, Start Time: {{startTime}}, End Time: {{endTime}}, Start Percentage: {{startPercentage}}%, End Percentage: {{endPercentage}}%
+  - Date: {{date}}, Start: {{startTime}} ({{startPercentage}}%), End: {{endTime}} ({{endPercentage}}%)
   {{/each}}
   
-  Consider all charging data when creating insights.
-  
-  Output the insights in a concise and easy-to-understand format. Make sure the total charging time is a humanized duration.
-  Total Charging Time: {{totalChargingTime}}
-  Average Charge Per Session: {{averageChargePerSession}}
-  Most Frequent Charging Times: {{mostFrequentChargingTimes}}`,
+  Please provide the output in the format specified by the output schema.
+  `,
 });
 
 const chargingDataInsightsFlow = ai.defineFlow(

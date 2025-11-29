@@ -45,7 +45,6 @@ const formSchema = z
     endTime: z.string().min(1, 'End time is required.'),
     startPercentage: z.coerce.number().min(0).max(100),
     endPercentage: z.coerce.number().min(0).max(100),
-    energyConsumed: z.coerce.number().optional(),
     notes: z.string().optional(),
   })
   .refine((data) => {
@@ -86,7 +85,6 @@ export function EditSessionDialog({ session, children }: { session: ChargingSess
       endTime: session.endTime,
       startPercentage: session.startPercentage,
       endPercentage: session.endPercentage,
-      energyConsumed: session.energyConsumed || 0,
       notes: session.notes || '',
     },
   });
@@ -121,7 +119,6 @@ export function EditSessionDialog({ session, children }: { session: ChargingSess
             endTime: session.endTime,
             startPercentage: session.startPercentage,
             endPercentage: session.endPercentage,
-            energyConsumed: session.energyConsumed || 0,
             notes: session.notes || '',
         });
     }
@@ -231,19 +228,6 @@ export function EditSessionDialog({ session, children }: { session: ChargingSess
                       max={100}
                       step={1}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="energyConsumed"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Energy Consumed (kWh)</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.01" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

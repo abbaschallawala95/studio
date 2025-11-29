@@ -44,7 +44,6 @@ const formSchema = z
     endTime: z.string().min(1, 'End time is required.'),
     startPercentage: z.coerce.number().min(0).max(100),
     endPercentage: z.coerce.number().min(0).max(100),
-    energyConsumed: z.coerce.number().optional(),
     notes: z.string().optional(),
   })
   .refine((data) => {
@@ -79,7 +78,6 @@ export function AddSessionDialog({ children }: { children: React.ReactNode }) {
       endTime: '',
       startPercentage: 20,
       endPercentage: 80,
-      energyConsumed: 0,
       notes: '',
     },
   });
@@ -223,19 +221,6 @@ export function AddSessionDialog({ children }: { children: React.ReactNode }) {
                 </FormItem>
               )}
             />
-             <FormField
-                control={form.control}
-                name="energyConsumed"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Energy Consumed (kWh)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
              <FormField
               control={form.control}
               name="notes"
