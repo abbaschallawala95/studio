@@ -1,11 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { generateChargingInsights, ChargingDataInsightsOutput } from '@/ai/flows/charging-data-insights';
+import { getChargingInsights } from '@/lib/actions';
+import type { ChargingDataInsightsOutput } from '@/ai/flows/charging-data-insights';
 import type { ChargingSession } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BatteryCharging, Zap } from 'lucide-react';
-import { format } from 'date-fns';
 import { Skeleton } from '../ui/skeleton';
 
 interface ChargingSummaryProps {
@@ -17,20 +17,25 @@ export default function ChargingSummary({ sessions }: ChargingSummaryProps) {
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    if (sessions.length > 0) {
-      setLoading(true);
-      const formattedSessions = sessions.map((s) => ({
-        ...s,
-        date: format(s.date instanceof Date ? s.date : new Date(s.date), 'yyyy-MM-dd'),
-      }));
-
-      generateChargingInsights({ chargingSessions: formattedSessions })
-        .then(setInsights)
-        .catch(console.error)
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
+    async function fetchInsights() {
+        if (sessions.length > 0) {
+            setLoading(true);
+            try {
+                const result = await getChargingInsights(sessions);
+                setInsights(result);
+            } catch (error) {
+                console.error("Failed to fetch charging insights:", error);
+                setInsights(null);
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            setLoading(false);
+            setInsights(null);
+        }
     }
+
+    fetchInsights();
   }, [sessions]);
   
   if (sessions.length === 0) {
@@ -81,7 +86,7 @@ export default function ChargingSummary({ sessions }: ChargingSummaryProps) {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap-8">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap_8">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Charging Time</CardTitle>
